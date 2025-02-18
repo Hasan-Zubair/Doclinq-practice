@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  align-items: center;
+}
+
+
+.left-section{
+    background-color: #1DBEB9;
+    width: 50%;
+}
