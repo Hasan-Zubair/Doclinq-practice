@@ -1,53 +1,40 @@
 import React, { useState } from "react";
+import { TextField, Button, Box } from "@mui/material";
+import { Alert } from "@mui/material";
+import { ErrorOutline } from "@mui/icons-material";
 import LoginDoctorImage from "../assets/images/image 3.png";
 import "../assets/CSS/sign.css";
-import { Button, IconButton, InputAdornment, TextField, Alert } from "@mui/material";
-import { Visibility, VisibilityOff, ErrorOutline } from "@mui/icons-material";
 
 const Signin = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({ username: "", password: "" });
-  const [formError, setFormError] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
 
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
+  const validate = () => {
+    let newErrors = { email: "", password: "" };
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    }
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => error === "");
   };
 
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      alert("Form submitted", formData);
+      setFormData({email: "", password: ""});
+    }
   };
 
-  const validateForm = () => {
-    let valid = true;
-    let errors = { username: "", password: "" };
-
-    const usernameRegex = /^[a-zA-Z0-9]{3,}$/; // At least 3 characters, alphanumeric
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; // Minimum 8 characters, at least one letter and one number
-
-    if (!usernameRegex.test(username)) {
-      errors.username = "Username must be at least 3 characters long and contain only letters and numbers.";
-      valid = false;
-    }
-
-    if (!passwordRegex.test(password)) {
-      errors.password = "Password must be at least 8 characters long and contain at least one letter and one number.";
-      valid = false;
-    }
-
-    setErrors(errors);
-    return valid;
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (validateForm()) {
-      setFormError("");
-      alert('Login Successful');
-    } else {
-      setFormError("Please fill in all required fields correctly.");
-    }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -65,93 +52,65 @@ const Signin = () => {
       </div>
       <div className="right-section">
         <h2 className="loginHeading">Login to DOCLINQ</h2>
-        <form className="credentials" onSubmit={handleSubmit}>
-          {formError && (
-            <Alert severity="error" icon={<ErrorOutline />}>
-              {formError}
-            </Alert>
-          )}
-          <label htmlFor="username" className="userName">
-            Enter your username <span style={{ color: "red" }}>*</span>
-          </label>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            gap: 2,
+          }}
+        >
           <TextField
+            label="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={!!errors.email}
+            helperText={
+              errors.email && (
+                <Alert
+                  severity="error"
+                  icon={<ErrorOutline fontSize="small" />}
+                >
+                  {" "}
+                  {errors.email}{" "}
+                </Alert>
+              )
+            }
             fullWidth
-            required
-            margin="normal"
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            error={!!errors.username}
-            helperText={errors.username}
-            sx={{
-              backgroundColor: "white",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "16px",
-                "& fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-              },
-            }}
           />
-
-          <label htmlFor="password" className="userName">
-            Enter your password <span style={{ color: "red" }}>*</span>
-          </label>
           <TextField
-            fullWidth
-            type={showPassword ? "text" : "password"}
-            required
-            margin="normal"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            label="password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
             error={!!errors.password}
-            helperText={errors.password}
-            sx={{
-              backgroundColor: "white",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "16px",
-                "& fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#CCCCCC",
-                },
-              },
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
+            helperText={
+              errors.password && (
+                <Alert
+                  severity="error"
+                  icon={<ErrorOutline fontSize="small" />}
+                >
+                  {" "}
+                  {errors.password}{" "}
+                </Alert>
+              )
+            }
+            autoComplete="off"
+            fullWidth
           />
           <Button
             type="submit"
             variant="contained"
-            size="large"
-            sx={{ backgroundColor: "#1DBEB9", borderRadius: "16px" }}
+            style={{ backgroundColor: "#1dbeb9" }}
+            fullWidth
           >
             Login
           </Button>
-        </form>
+        </Box>
       </div>
     </div>
   );
