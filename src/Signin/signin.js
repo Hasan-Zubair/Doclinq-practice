@@ -28,9 +28,19 @@ const Signin = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      alert("Form submitted", formData);
-      setFormData({email: "", password: ""});
+      const storedEmail = localStorage.getItem("email");
+      const storedPassword = localStorage.getItem("password");
+      if (storedEmail === formData.email && storedPassword === formData.password){
+        alert("Login Successful")
+      }else{
+        localStorage.setItem("email", formData.email)
+        localStorage.setItem("password", formData.password)
+        alert("Form submitted and credentials stored")
+      }
+
+      setFormData({email: "", password: ""})
     }
+
   };
 
   const handleChange = (e) => {
